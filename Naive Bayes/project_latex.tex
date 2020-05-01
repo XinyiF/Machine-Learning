@@ -1,0 +1,61 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{authblk}
+\title{Classifying with probability theory: Naive Bayes Classifier}
+\author[a]{Xinyi Feng}
+\author[b]{Crank Wang}
+\affil[a]{xfeng82@wisc.edu}
+\affil[b]{ywang2554@wisc.edu}
+\renewcommand*{\Affilfont}{\small\it} 
+\renewcommand\Authands{ and } 
+\date{} 
+
+\begin{document}
+  \maketitle
+  
+\section{Abstract}
+In some circumstances when data show different characteristics, classifiers
+like what we have learned in this course may not always give us the correct
+data classification. In this case, we can introduce a new kind of algorithm
+called Naive Bayes Classifier (NBC).\\
+Unlike decision tree classification and k-means classification algorithms, Naive Bayes Classifier mainly uses the knowledge of probability theory to compare the conditional probabilities of the data come from each class. We calculate them separately, and then predict the category with the largest conditional probability. 
+
+\section{Math}
+The core of the naive Bayes classifier is the Bayes' Rule which tells us how to swap the symbols in a conditional probability statement:
+\begin{equation}
+p(c|x)=\frac{p(x|c)p(c)}{p(x)}
+\end{equation}
+\section{Background}
+
+To use naive Bayes on some real-life problems we’ll need to be able to go from a body of text to a list of strings and then a word vector. In this example we’re going to visit the famous use of naïve Bayes: email spam filtering.\\
+We prepared a video for this part.
+
+\section{Warm-up Questions}
+\subsection{We have some grey balls and some black balls, randomly placed into basket A and basket B. How to calculate the probability of a gray stone, given that the unknown stone comes from bucket B？}
+~\\~\\~\\~\\
+\subsection{Misjudged ham mail and spam mail, which is more serious?}
+~\\~\\~\\~\\
+\subsection{How to improve accuracy?}
+~\\~\\~\\~\\
+\section{Main activity}
+\subsection{Choose an email to test if it is spam}
+~\\~\\~\\~\\
+\subsection{Test all emails to calculate the error rate of ham emails and spam emails}
+~\\~\\~\\~\\
+\subsection{If the error rate is not zero, reduce the error rate by modifying the thesaurus}
+~\\~\\~\\~\\
+\subsection{Create a plot, with number of rows of thesaurus as x-axis and error rate as y-axis, showing error rate with 1~7 rows of thesaurus and explain your plot}
+
+\section{Appendix}
+For Warm-up Questions:\\
+p(gray|bucketB)\\
+Misjudging ham mail is more serious since we might miss important mail.\\
+Expand the thesaurus.\\
+For Main activities:\\
+Uncomment the code.
+\end{document}
+
+
+
+
