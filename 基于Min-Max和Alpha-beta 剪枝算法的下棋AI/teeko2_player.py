@@ -16,6 +16,7 @@ class Teeko2Player:
         self.my_piece = random.choice(self.pieces)
         self.opp = self.pieces[0] if self.my_piece == self.pieces[1] else self.pieces[1]
 
+    # 找到当前state可能的下一个state
     def succ(self, state, piece):
         # determine phase
         drop_phase = True
@@ -52,6 +53,7 @@ class Teeko2Player:
                                 res.append(temp)
             return res
 
+    # 计算当前state某种棋子的数量
     def count(self, state, piece):
         count = 0
         for row in state:
@@ -82,9 +84,6 @@ class Teeko2Player:
                 piece the AI plans to relocate (for moves after the drop phase). In
                 the drop phase, this list should contain ONLY THE FIRST tuple.
 
-        Note that without drop phase behavior, the AI will just keep placing new markers
-            and will eventually take over the board. This is not a valid strategy and
-            will earn you no points.
         """
 
         drop_phase = True
@@ -94,10 +93,11 @@ class Teeko2Player:
             drop_phase = False
 
         if not drop_phase:
-
             # accordingly, the AI will not follow the rules after the drop phase!
+
             move = []
             value, cur_state = self.Max_Value(state, 0)
+            # 生成move，因为返回值是一系列state，需要和当前state对比生成move[(row,col),(source_row,source_col)]
             row, col, source_row, source_col, flag1, flag2 = 0, 0, 0, 0, 0, True
             for i in range(len(state)):
                 if not flag2:
@@ -137,6 +137,7 @@ class Teeko2Player:
         if self.game_value(state) != 0:
             return (self.game_value(state), state)
         # reach max depth but game continue
+        # 目前把深度控制在3，这样每一步的时间可以控制在4秒以内
         elif depth >= 3:
             return self.heuristic_game_value(state, self.my_piece)
 
@@ -144,6 +145,7 @@ class Teeko2Player:
             alpha = float('-Inf')
             for moves in self.succ(state, self.my_piece):
                 score = self.Min_Value(moves, depth + 1)
+                # 剪枝，只有比目前分数高的子节点才有资格继续扩展
                 if score[0] > alpha:
                     alpha = score[0]
                     temp = moves
@@ -165,9 +167,7 @@ class Teeko2Player:
         return beta, temp
 
     def opponent_move(self, move):
-        """ Validates the opponent's next move against the internal board representation.
-        You don't need to touch this code.
-
+        """
         Args:
             move (list): a list of move tuples such that its format is
                     [(row, col), (source_row, source_col)]
