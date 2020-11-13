@@ -131,6 +131,52 @@ class Teeko2Player:
         move.insert(0, (row, col))
         return move
 
+    def make_move1(self, state):
+        drop_phase = True
+        numai = self.count(state, self.my_piece)
+        numopp = self.count(state, self.opp)
+        if numopp >= 4 and numai >= 4:
+            drop_phase = False
+
+        if not drop_phase:
+            # accordingly, the AI will not follow the rules after the drop phase!
+
+            move = []
+            value, cur_state = self.Min_Value1(state, 0)
+            # 生成move，因为返回值是一系列state，需要和当前state对比生成move[(row,col),(source_row,source_col)]
+            row, col, source_row, source_col, flag1, flag2 = 0, 0, 0, 0, 0, True
+            for i in range(len(state)):
+                if not flag2:
+                    break
+                for j in range(len(state[0])):
+                    if state[i][j] != cur_state[i][j] and state[i][j] == ' ':
+                        row, col = i, j
+                        flag1 += 1
+                    if state[i][j] != cur_state[i][j] and cur_state[i][j] == ' ':
+                        source_row, source_col = i, j
+                        flag1 += 1
+                    if flag1 == 2:
+                        flag2 = False
+                        break
+
+            move.insert(0, (row, col))
+            move.insert(1, (source_row, source_col))
+            return move
+
+        move = []
+        value, cur_state = self.Min_Value1(state, 0)
+        row, col, flag = 0, 0, True
+        for i in range(len(state)):
+            if not flag:
+                break
+            for j in range(len(state[0])):
+                if state[i][j] != cur_state[i][j]:
+                    row, col = i, j
+                    flag = False
+                    break
+        move.insert(0, (row, col))
+        return move
+
     def Max_Value(self, state, depth):
         temp = state
         # reach terminate point
@@ -161,6 +207,41 @@ class Teeko2Player:
             beta = float('Inf')
             for moves in self.succ(state, self.opp):
                 score = self.Max_Value(moves, depth + 1)
+                if score[0] < beta:
+                    beta = score[0]
+                    temp = moves
+        return beta, temp
+
+    def Max_Value1(self, state, depth):
+        temp = state
+        # reach terminate point
+        if self.game_value(state) != 0:
+            return (self.game_value(state), state)
+        # reach max depth but game continue
+        # 目前把深度控制在3，这样每一步的时间可以控制在4秒以内
+        elif depth >= 3:
+            return self.heuristic_game_value1(state, self.my_piece)
+
+        else:
+            alpha = float('-Inf')
+            for moves in self.succ(state, self.my_piece):
+                score = self.Min_Value1(moves, depth + 1)
+                # 剪枝，只有比目前分数高的子节点才有资格继续扩展
+                if score[0] > alpha:
+                    alpha = score[0]
+                    temp = moves
+        return alpha, temp
+
+    def Min_Value1(self, state, depth):
+        temp = state
+        if self.game_value(state) != 0:
+            return (self.game_value(state), state)
+        elif depth >= 3:
+            return self.heuristic_game_value1(state, self.opp)
+        else:
+            beta = float('Inf')
+            for moves in self.succ(state, self.opp):
+                score = self.Max_Value1(moves, depth + 1)
                 if score[0] < beta:
                     beta = score[0]
                     temp = moves
@@ -204,123 +285,124 @@ class Teeko2Player:
         print("   A B C D E")
 
 
-    # def heuristic_game_value(self, state, piece):
-    #     # more pieces on the same row, col, diagonal or a diamond --> higher score for the piece
-    #     if piece == 'b':
-    #         my_piece = 'b'
-    #         opp = 'r'
-    #
-    #     else:
-    #         my_piece = 'r'
-    #         opp = 'b'
-    #
-    #     my_pos,opp_pos=[],[]
-    #
-    #     # record position of each kind of pieces on current state
-    #     for row in range(len(state)):
-    #         for col in range(len(state[0])):
-    #             if state[row][col]==my_piece:
-    #                 my_pos.append([row,col])
-    #             elif state[row][col]==opp:
-    #                 opp_pos.append([row, col])
-    #
-    #
-    #     maxai, maxopp = 0, 0
-    #
-    #     # move to same row
-    #     # count the min distance from the piece to the line
-    #     for row in range(len(state)):
-    #         my_count, opp_count = 0, 0
-    #         # my_piece
-    #         for marker in my_pos:
-    #             my_count+=abs(row-marker[0])
-    #         for marker in opp_pos:
-    #             opp_count+=abs(row-marker[0])
-    #         # more required moves leads to lower score
-    #         if my_count>opp_count:
-    #             maxopp+=1
-    #         elif my_count<opp_count:
-    #             maxai+=1
-    #
-    #     # move to same col
-    #     # count the min distance from the piece to the line
-    #     for col in range(len(state[0])):
-    #         my_count, opp_count = 0, 0
-    #         for marker in my_pos:
-    #             my_count+=abs(col-marker[1])
-    #         for marker in opp_pos:
-    #             opp_count+=abs(col-marker[1])
-    #         # more required moves leads to lower score
-    #         if my_count>opp_count:
-    #             maxopp+=1
-    #         elif my_count<opp_count:
-    #             maxai+=1
-    #
-    #
-    #
-    #     # on diagnal \
-    #     # count the min distance from the piece to the line
-    #     for row in range(2):
-    #         for col in range(2):
-    #             my_count, opp_count = 0, 0
-    #             for marker in my_pos:
-    #                 my_count+=(abs(col-marker[1])*abs(row-marker[0]))/self.distance([row,col],[row+3,col+3])
-    #             for marker in opp_pos:
-    #                 opp_count += (abs(col - marker[1]) * abs(row - marker[0])) / self.distance([row, col],[row + 3, col + 3])
-    #             # more required moves leads to lower score
-    #             if my_count > opp_count:
-    #                 maxopp += 1
-    #             elif my_count < opp_count:
-    #                 maxai += 1
-    #
-    #
-    #     # on diagnal /
-    #     for row in range(2):
-    #         for col in range(3,5):
-    #             my_count, opp_count = 0, 0
-    #             for marker in my_pos:
-    #                 my_count+=(abs(col-marker[1])*abs(row-marker[0]))/self.distance([row,col],[row-3,col-3])
-    #             for marker in opp_pos:
-    #                 opp_count += (abs(col - marker[1]) * abs(row - marker[0])) / self.distance([row, col],[row - 3, col - 3])
-    #             # more required moves leads to lower score
-    #             if my_count > opp_count:
-    #                 maxopp += 1
-    #             elif my_count < opp_count:
-    #                 maxai += 1
-    #
-    #
-    #     # move to diamond
-    #     # count the min distance from the piece to diamond
-    #     for row in range(1, len(state) - 1):
-    #         for col in range(1, len(state[0]) - 1):
-    #             my_count, opp_count = 0, 0
-    #             win_position=[[row+1,col],[row-1,col],[row,col+1],[row,col-1]]
-    #             for marker in my_pos:
-    #                 min_dis=99
-    #                 for i in range(4):
-    #                     distance=self.distance(marker,win_position[i])
-    #                     min_dis=min(min_dis,distance)
-    #                 my_count+=min_dis
-    #             for marker in opp_pos:
-    #                 min_dis = 99
-    #                 for i in range(4):
-    #                     distance = self.distance(marker, win_position[i])
-    #                     min_dis = min(min_dis, distance)
-    #                 my_count += min_dis
-    #             # more required moves leads to lower score
-    #             if my_count > opp_count:
-    #                 maxopp += 1
-    #             elif my_count < opp_count:
-    #                 maxai += 1
-    #     # the possible maximum score is 27
-    #     score=[0,maxopp,maxai,27]
-    #
-    #     if maxai == maxopp:
-    #         return 0, state
-    #     elif maxai > maxopp:
-    #         return self.normalization(maxai,max(score),min(score),mean(score)), state
-    #     else:
-    #         return (-1) * self.normalization(maxopp,max(score),min(score),mean(score)), state
+    def heuristic_game_value1(self, state, piece):
+        # more pieces on the same row, col, diagonal or a diamond --> higher score for the piece
+        if piece == 'b':
+            my_piece = 'b'
+            opp = 'r'
+
+        else:
+            my_piece = 'r'
+            opp = 'b'
+
+        my_pos,opp_pos=[],[]
+
+        # record position of each kind of pieces on current state
+        for row in range(len(state)):
+            for col in range(len(state[0])):
+                if state[row][col]==my_piece:
+                    my_pos.append([row,col])
+                elif state[row][col]==opp:
+                    opp_pos.append([row, col])
+
+
+        maxai, maxopp = 0, 0
+
+        # move to same row
+        # count the min distance from the piece to the line
+        for row in range(len(state)):
+            my_count, opp_count = 0, 0
+            # my_piece
+            for marker in my_pos:
+                my_count+=abs(row-marker[0])
+            for marker in opp_pos:
+                opp_count+=abs(row-marker[0])
+            # more required moves leads to lower score
+            if my_count>opp_count:
+                maxopp+=1
+            elif my_count<opp_count:
+                maxai+=1
+
+        # move to same col
+        # count the min distance from the piece to the line
+        for col in range(len(state[0])):
+            my_count, opp_count = 0, 0
+            for marker in my_pos:
+                my_count+=abs(col-marker[1])
+            for marker in opp_pos:
+                opp_count+=abs(col-marker[1])
+            # more required moves leads to lower score
+            if my_count>opp_count:
+                maxopp+=1
+            elif my_count<opp_count:
+                maxai+=1
+
+
+
+        # on diagnal \
+        # count the min distance from the piece to the line
+        for row in range(2):
+            for col in range(2):
+                my_count, opp_count = 0, 0
+                for marker in my_pos:
+                    my_count+=(abs(col-marker[1])*abs(row-marker[0]))/self.distance([row,col],[row+3,col+3])
+                for marker in opp_pos:
+                    opp_count += (abs(col - marker[1]) * abs(row - marker[0])) / self.distance([row, col],[row + 3, col + 3])
+                # more required moves leads to lower score
+                if my_count > opp_count:
+                    maxopp += 1
+                elif my_count < opp_count:
+                    maxai += 1
+
+
+        # on diagnal /
+        for row in range(2):
+            for col in range(3,5):
+                my_count, opp_count = 0, 0
+                for marker in my_pos:
+                    my_count+=(abs(col-marker[1])*abs(row-marker[0]))/self.distance([row,col],[row-3,col-3])
+                for marker in opp_pos:
+                    opp_count += (abs(col - marker[1]) * abs(row - marker[0])) / self.distance([row, col],[row - 3, col - 3])
+                # more required moves leads to lower score
+                if my_count > opp_count:
+                    maxopp += 1
+                elif my_count < opp_count:
+                    maxai += 1
+
+
+        # move to diamond
+        # count the min distance from the piece to diamond
+        for row in range(1, len(state) - 1):
+            for col in range(1, len(state[0]) - 1):
+                my_count, opp_count = 0, 0
+                win_position=[[row+1,col],[row-1,col],[row,col+1],[row,col-1]]
+                for marker in my_pos:
+                    min_dis=99
+                    for i in range(4):
+                        distance=self.distance(marker,win_position[i])
+                        min_dis=min(min_dis,distance)
+                    my_count+=min_dis
+                for marker in opp_pos:
+                    min_dis = 99
+                    for i in range(4):
+                        distance = self.distance(marker, win_position[i])
+                        min_dis = min(min_dis, distance)
+                    my_count += min_dis
+                # more required moves leads to lower score
+                if my_count > opp_count:
+                    maxopp += 1
+                elif my_count < opp_count:
+                    maxai += 1
+        # the possible maximum score is 27
+        score=[0,maxopp,maxai,27]
+
+        if maxai == maxopp:
+            return 0, state
+        elif maxai > maxopp:
+            return self.normalization(maxai,max(score),min(score),mean(score)), state
+        else:
+            return (-1) * self.normalization(maxopp,max(score),min(score),mean(score)), state
+
 
     def heuristic_game_value(self, state, piece):
         # 尝试将棋子之间的紧密程度作为评分标准
@@ -391,7 +473,6 @@ class Teeko2Player:
         for row in state:
             for i in range(2):
                 if row[i] != ' ' and row[i] == row[i + 1] == row[i + 2] == row[i + 3]:
-                    print('1111')
                     return 1 if row[i] == self.my_piece else -1
 
         # check vertical wins
@@ -399,7 +480,6 @@ class Teeko2Player:
             for i in range(2):
                 if state[i][col] != ' ' and state[i][col] == state[i + 1][col] == state[i + 2][col] == state[i + 3][
                     col]:
-                    print('2222')
                     return 1 if state[i][col] == self.my_piece else -1
 
         # check \ diagonal wins
@@ -407,7 +487,6 @@ class Teeko2Player:
             for col in range(2):
                 if state[row][col] != ' ' and state[row][col] == state[row + 1][col + 1] == state[row + 2][col + 2] == \
                         state[row + 3][col + 3]:
-                    print('3333')
                     return 1 if state[row][col] == self.my_piece else -1
 
         # check / diagonal wins
@@ -416,7 +495,6 @@ class Teeko2Player:
                 if state[row][col] != ' ' and state[row][col] == state[row + 1][col - 1] == state[row + 2][col - 2] == \
                         state[row + 3][col - 3]:
                     print((row,col))
-                    print('4444')
                     return 1 if state[row][col] == self.my_piece else -1
 
         # check diamond wins
@@ -424,7 +502,6 @@ class Teeko2Player:
             for j in range(1, len(state[0]) - 1):
                 if state[i][j] == ' ' and state[i + 1][j] != ' ' and state[i + 1][j] == state[i - 1][j] == state[i][
                     j + 1] == state[i][j - 1]:
-                    print('5555')
                     return 1 if state[i + 1][j] == self.my_piece else -1
 
         return 0  # no winner yet
