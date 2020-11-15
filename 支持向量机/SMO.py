@@ -238,7 +238,7 @@ def smo(toler=0.001,maxIters=50):
 
 # 画图
 dataMat,labelMat=loadDataSet('testSet.txt')
-os=parameter(dataMat,labelMat,0.6,0.001)
+os=parameter(dataMat,labelMat,1,0.001)
 w=smo()
 print(w)
 # 可视化数据点
@@ -248,6 +248,13 @@ plt.scatter([point[0] for point in negative],[point[1] for point in negative],la
 x=np.arange(-2,11)
 y=(-w[0]/w[1])*x-os.b/w[1]
 plt.plot(x,y)
+x=np.arange(-2,11)
+y=(-w[0]/w[1])*x-(os.b+1)/w[1]
+plt.plot(x,y)
+x=np.arange(-2,11)
+y=(-w[0]/w[1])*x-(os.b-1)/w[1]
+plt.plot(x,y)
+
 plt.legend()
 plt.show()
 
