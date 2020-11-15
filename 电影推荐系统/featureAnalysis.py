@@ -104,27 +104,28 @@ def user_genre(user,mov_gen,gen_mov,name):
 
 
 
-#
-# name,mov_gen,gen_mov=loadGenre('movies.csv')
-# rating,user=loadRating('ratings.csv',name)
-# gen_rating=rateGenre(gen_mov,rating)
-# user_gen=user_genre(user,mov_gen,gen_mov,name)
+def main():
+    name,mov_gen,gen_mov=loadGenre('movies.csv')
+    rating,user=loadRating('ratings.csv',name)
+    gen_rating=rateGenre(gen_mov,rating)
+    user_gen=user_genre(user,mov_gen,gen_mov,name)
 
 
-# # 绘制每种流派的平均得分条形图
-# label_list,num_list =[],[]
-# for gen in gen_rating:
-#     label_list.append(gen)
-#     num_list.append(gen_rating[gen])
-#
-#
-# # 各流派平均得分条形图
-# params = {'figure.figsize': '25, 4'}
-# plt.rcParams.update(params)
-# plt.bar(range(len(num_list)), num_list,tick_label=label_list,width=0.5)
-# plt.xlabel('Genre')
-# plt.ylabel('Rating')
-# plt.show()
+    # 绘制每种流派的平均得分条形图
+    label_list,num_list =[],[]
+    for gen in gen_rating:
+        label_list.append(gen)
+        num_list.append(gen_rating[gen])
 
 
+    # 各流派平均得分条形图
+    params = {'figure.figsize': '25, 4'}
+    plt.rcParams.update(params)
+    plt.bar(range(len(num_list)), num_list,tick_label=label_list,width=0.5)
+    plt.xlabel('Genre')
+    plt.ylabel('Rating')
+    plt.show()
+
+if __name__ == "__main__":
+    main()
 
