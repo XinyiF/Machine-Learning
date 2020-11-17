@@ -8,9 +8,6 @@ from featureAnalysis import *
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-
-
 def distance(user1,user2):
     # input: rating list
     return np.sqrt(sum(pow(user1[i]-user2[i],2)  for i in range(len(user1))))
