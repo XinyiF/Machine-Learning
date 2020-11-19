@@ -53,15 +53,13 @@ def closeMovie(user_id,close_user,user,name):
             else:
                 rate_table[score].append(movie)
     rate_list=sorted(rate_table)
-    # 排除用户已经看过的电影
+    # 排除用户已经看过的电影的所有电影ID list
     res=[]
-    while len(res)<10:
+    while rate_list:
         rate=rate_list.pop()
         for mov_id in rate_table[rate]:
             if not mov_id in user[user_id][0]:
-                res.append(name[mov_id])
-            if len(res)>=10:
-                break
+                res.append(mov_id)
     return res
 
 # 用户侧写
@@ -78,32 +76,24 @@ def userProfile(user_gen,user_id,gen_mov):
     plt.ylabel('Rating')
     plt.show()
 
-# 打印推荐电影及其流派
-def printMovie(movie_name,mov_gen):
-    for mov in movie_name:
-        print(mov,end=': ')
-        for gen in mov_gen[mov]:
-            print(gen,end=', ')
-        print('')
+# 打印推荐电影及其流派和预测评分
+def printMovie(movie_name,mov_gen,rates):
+    for i in range(len(movie_name)):
+        print('{}{:.2f}   {}{}{}'.format('predict rate:', rates[i],movie_name[i],':',mov_gen[movie_name[i]]))
 
 
 
 
-def main():
+def allRecoMovies(user_id):
     name, mov_gen, gen_mov = loadGenre('movies.csv')
     rating, user = loadRating('ratings.csv', name)
     gen_rating = rateGenre(gen_mov, rating)
     user_gen = user_genre(user, mov_gen, gen_mov, name)
     # 该用户侧写
-    user_id=input("User ID(1~668): ")
     userProfile(user_gen,user_id,gen_mov)
     dis_mat=dis_matrix(user_gen)
     close_user=closeUser(user_id,dis_mat)
     #  得到推荐电影
     res=closeMovie(user_id,close_user,user,name)
-    # 打印推荐电影和流派
-    printMovie(res,mov_gen)
+    return res
 
-
-if __name__ == "__main__":
-    main()
