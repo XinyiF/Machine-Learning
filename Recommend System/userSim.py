@@ -16,6 +16,7 @@ def enery(Sigma):
 
 # 对原始rating矩阵进行SVD分解
 def svd(rating_martix):
+    print('SVD分解...')
     U, Sigma, VT = np.linalg.svd(rating_martix)
     idx=np.argsort(Sigma)
     # 特征值排序
@@ -66,6 +67,7 @@ def simMatrix(rate_new):
 
 # 找到和目标用户最相似的K位用户
 def closeUser(userID,sim,K):
+    print('找到最相似的',K,'位用户...')
     simlist=list(sim[userID])
     res=[]
     while len(res)<K and max(simlist)!=float('-inf'):
@@ -78,6 +80,7 @@ def closeUser(userID,sim,K):
 # 找到推荐的k部电影
 # user: {用户id:[[电影id],[评分]]}
 def recomMovie(close_user_ID,user,k):
+    print('找到推荐的电影列表...')
     all_movie,all_rate=[],[]
     for usr in close_user_ID:
         for movID,rate in zip(user[str(usr)][0],user[str(usr)][1]):
@@ -106,4 +109,4 @@ def recommend(userID,closeUserNum,recommendMovieNum):
     sim=simMatrix(rating_new)
     close_user=closeUser(userID,sim,closeUserNum)
     recommendID=recomMovie(close_user,user,recommendMovieNum)
-    return idToname(name,recommendID)
+    return idToname(name,recommendID),recommendID,user
