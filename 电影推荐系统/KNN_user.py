@@ -28,19 +28,20 @@ def dis_matrix(user_gen):
     return res
 
 
-# 找到输入用户最接近的10位用户
-def closeUser(user_id,dis_mat):
+# 找到输入用户最接近的K位用户
+def closeUser(user_id,dis_mat,K):
     row=int(user_id)-1
     dis=dis_mat[row]
     res=[]
-    for i in range(10):
+    for i in range(K):
         min_idx=dis.index(min(dis))
         res.append(str(min_idx+1))
         dis[min_idx]=float('inf')
     return res
 
-# 找到类似客户评分最高的10部电影
-def closeMovie(user_id,close_user,user,name):
+# 找到类似客户看过该用户未看过的电影列表
+# 找到所有可能推荐的电影列表，包含该用户已经评分的，用于测评
+def closeMovie(user_id,close_user,user):
     # input [id1,id2,....]
     # input {用户id:[[电影id],[评分]]}
     rate_table={}
@@ -54,13 +55,14 @@ def closeMovie(user_id,close_user,user,name):
                 rate_table[score].append(movie)
     rate_list=sorted(rate_table)
     # 排除用户已经看过的电影的所有电影ID list
-    res=[]
+    res,all_rec=[],[]
     while rate_list:
         rate=rate_list.pop()
         for mov_id in rate_table[rate]:
+            all_rec.append(mov_id)
             if not mov_id in user[user_id][0]:
                 res.append(mov_id)
-    return res
+    return res,all_rec
 
 # 用户侧写
 def userProfile(user_gen,user_id,gen_mov):
@@ -92,8 +94,8 @@ def allRecoMovies(user_id):
     # 该用户侧写
     userProfile(user_gen,user_id,gen_mov)
     dis_mat=dis_matrix(user_gen)
-    close_user=closeUser(user_id,dis_mat)
+    close_user=closeUser(user_id,dis_mat,10)
     #  得到推荐电影
-    res=closeMovie(user_id,close_user,user,name)
-    return res
+    res,all_rec=closeMovie(user_id,close_user,user)
+    return res,all_rec
 

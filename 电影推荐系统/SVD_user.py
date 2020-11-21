@@ -22,19 +22,20 @@ def loadDate(filename):
         res[int(item[0])][int(item[1])]=float(item[2])
     return res
 
+# 建立所有用户，KNN初步推荐的电影的评分矩阵
 def loadRecoDate(filename,recoMovieID):
-    r=open(filename,'r')
-    reader=csv.reader(r)
-    # 多一行用户id对应index
-    res=np.zeros([669,len(recoMovieID)])
-    for item in reader:
-        # 忽略第一行
-        if reader.line_num == 1:
-            continue
-        if item[1] in recoMovieID:
-            idx=recoMovieID.index(item[1])
-            res[int(item[0])][idx]=float(item[2])
-    return res
+    with open(filename,'r') as r:
+        reader=csv.reader(r)
+        # 多一行用户id对应index
+        res=np.zeros([669,len(recoMovieID)])
+        for item in reader:
+            # 忽略第一行
+            if reader.line_num == 1:
+                continue
+            if item[1] in recoMovieID:
+                idx=recoMovieID.index(item[1])
+                res[int(item[0])][idx]=float(item[2])
+        return res
 
 
 # 向量相似度
@@ -108,7 +109,7 @@ def printMovRate(mov_name,rates):
 
 
 user_ID=input('输入用户id(1~668):')
-recoMovieID=allRecoMovies(user_ID)
+recoMovieID,all_rec=allRecoMovies(user_ID)
 rate=loadRecoDate('ratings.csv',recoMovieID)
 res=svdReco(rate,int(user_ID))
 idx=np.argsort(res)[::-1]
