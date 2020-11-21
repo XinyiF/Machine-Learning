@@ -107,10 +107,10 @@ def printMovRate(mov_name,rates):
 
 
 
-
-recoMovieID=allRecoMovies('1')
+user_ID=input('输入用户id(1~668):')
+recoMovieID=allRecoMovies(user_ID)
 rate=loadRecoDate('ratings.csv',recoMovieID)
-res=svdReco(rate,1)
+res=svdReco(rate,int(user_ID))
 idx=np.argsort(res)[::-1]
 # 最好的5部电影
 idx=idx[:5]
