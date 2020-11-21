@@ -40,9 +40,9 @@ for testId in test_user_ID:
     recommends[testId]=recomID
     tests[testId]=[int(id) for id in testMovieID]
 res=precision(recommends, tests)
-print(res)
+print('precision is: ',res*100,'%')
 rec=recall(recommends, tests)
-print(rec)
+print('recall is: ',rec*100,'%')
 
 
 
