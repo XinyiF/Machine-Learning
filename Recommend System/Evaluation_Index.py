@@ -54,7 +54,7 @@ def coverage(recommends, all_items):
     """
     recom_item=set()
     for user in recommends:
-        recom_item=recom_item | (set(recommends[user]) & set(all_items))
+        recom_item=recom_item | set(recommends[user])
     return len(recom_item)/len(all_items)
 
 
