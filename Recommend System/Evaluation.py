@@ -35,7 +35,7 @@ test_user_ID,train_user_ID=selectTest(0.01)
 recommends, tests={},{}
 for testId in test_user_ID:
     print('计算第',testId,'位用户...')
-    recomName,recomID,user=recommend(int(testId),10,20)
+    recomName,recomID,user=recommend(int(testId),5,5)
     testMovieID=user[str(testId)][0]
     recommends[testId]=recomID
     tests[testId]=[int(id) for id in testMovieID]
