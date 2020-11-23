@@ -1,9 +1,5 @@
-# 基于keras的手写字体识别
-# 神经网络
-
 import numpy as np
 from tensorflow import keras
-import matplotlib.pyplot as plt
 
 
 def get_dataset(training=True):
@@ -17,42 +13,38 @@ def get_dataset(training=True):
 
 def print_stats(train_images, train_labels):
     class_names = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine']
-    dic = {0: 'Zero', 1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five', 6: 'Six', 7: 'Seven', 8: 'Eight',
-            9: 'Nine'}
     print(len(train_images))
-    print('{}{}{}'.format(train_images[0].shape[0], 'X', train_images[0].shape[1]))
+    print('{}{}{}'.format(train_images[0].shape[0], 'x', train_images[0].shape[1]))
     num=np.zeros(len(class_names))
     for imgIdx in range(len(train_images)):
         num[train_labels[imgIdx]]+=1
     for i in range(len(num)):
-        print('{}{} {} {} {}'.format(i,'.',class_names[i],'-',num[i]))
+        print('{}{} {} {} {}'.format(i,'.',class_names[i],'-',int(num[i])))
 
 def build_model():
     model = keras.models.Sequential([
-        keras.layers.Flatten(input_shape=[28, 28]),
+        keras.layers.Flatten(),
         keras.layers.Dense(128, activation="relu"),
-        keras.layers.Dense(60, activation="relu"),
-        keras.layers.Dense(10,activation="softmax")
+        keras.layers.Dense(64, activation="relu"),
+        keras.layers.Dense(10)
     ])
     model.compile(
-        optimizer='sgd',
-        loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+        optimizer=keras.optimizers.SGD(learning_rate=0.001),
+        loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True, reduction="auto", name="sparse_categorical_crossentropy"),
         metrics=['accuracy']
     )
     return model
 
 def train_model(model, train_images, train_labels, T):
-    X_valid, X_train = train_images[:5000] / 255.0, train_images[5000:] / 255.0
-    y_valid, y_train = train_labels[:5000], train_labels[5000:]
-    model.fit(X_train, y_train, epochs=T,validation_data=(X_valid, y_valid))
+    model.fit(train_images, train_labels, batch_size=32, epochs=T)
 
 def evaluate_model(model, test_images, test_labels, show_loss=True):
-    test_loss, test_accuracy=model.evaluate(test_images,test_labels,verbose=0)
+    test_loss, test_accuracy=model.evaluate(test_images,test_labels,batch_size=48)
     if show_loss:
         print('{} {:.2f}'.format('Loss:',test_loss))
-        print('{} {:.2f}{}'.format('Accuracy:', test_accuracy*100,'%'))
+        print('{} {:.2f}'.format('Accuracy:', test_accuracy*100))
     else:
-        print('{} {:.2f}{}'.format('Accuracy:', test_accuracy*100,'%'))
+        print('{} {:.2f}'.format('Accuracy:', test_accuracy*100))
 
 def predict_label(model, test_images, index):
     all_res=model.predict(test_images)
@@ -71,15 +63,11 @@ def main():
     # print_stats(train_images, train_labels)
 
     model = build_model()
+
     train_model(model, train_images, train_labels, 10)
-
+    #
     evaluate_model(model, test_images, test_labels, show_loss=True)
-    # 识别test图片
-    idx=int(input("输入图片索引："))
-    predict_label(model,test_images,idx)
-    plt.imshow(test_images[idx])
-    plt.show()
-
+    # predict_label(model,test_images,1)
 
 if __name__=="__main__":
     main()
