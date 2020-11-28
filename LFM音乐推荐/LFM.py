@@ -34,10 +34,11 @@ def get_loss(R,P,Q,lamb=0.1):
     return loss
 
 # 学习新的P，Q
-def gradDecent(R,P,Q,alpha=0.1,maxIter=100,lamb=0.1,minLoss=0.001):
+def gradDecent(R,P,Q,alpha=0.1,maxIter=15,lamb=0.1,minLoss=0.001):
     K=len(P[0])
     iter=0
     loss = get_loss(R, P, Q, lamb)
+
     while iter<maxIter and loss>minLoss:
         for usr in range(len(P)):
             for item in range(len(Q[0])):
@@ -47,7 +48,7 @@ def gradDecent(R,P,Q,alpha=0.1,maxIter=100,lamb=0.1,minLoss=0.001):
                     Q[k][item]+=alpha*(eiu*P[usr][k]-lamb*Q[k][item])
         loss=get_loss(R,P,Q,lamb)
         iter+=1
-    print('第',iter,'次迭代')
+        print('第',iter,'次迭代')
     return P,Q,loss
 
 
@@ -56,6 +57,8 @@ R=get_R('user.csv')
 P,Q=init_PQ(R,5)
 newP,newQ,loss= gradDecent(R,P,Q)
 new_R=np.dot(P,Q)
+
+
 
 
 
