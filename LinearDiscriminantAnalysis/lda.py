@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+import matplotlib.pyplot as plt
+
 def loadData(trainDataPath):
     data=(pd.read_csv(trainDataPath)).values
     #  提取正负样本
@@ -58,10 +60,24 @@ def accurancy(w,testSample,positiveData,negativeData):
             res.append(0)
     return sum(res)/len(res)
 
+def draw(w,positiveData,negativeData):
+    for pos,neg in zip(positiveData,negativeData):
+        dimReduP=kernal(w,pos)
+        dimReduN=kernal(w,neg)
+        plt.scatter(dimReduP,0,c='r')
+        plt.scatter(dimReduN,1, c='g')
+    plt.show()
+
+
+
+
+
+
 
 trainDataPath='diabetes_train.txt'
 positiveData,negativeData=loadData(trainDataPath)
 w=lda(positiveData,negativeData)
 testSampe=np.array(pd.read_csv('diabetes_test.txt').values)
 
-print(accurancy(w,testSampe,positiveData,negativeData))
+print('准确率=',accurancy(w,testSampe,positiveData,negativeData))
+draw(w,positiveData,negativeData)
