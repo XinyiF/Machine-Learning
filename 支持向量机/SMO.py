@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 #  获取特征矩阵和标签向量
 # dataMat=[[x11,x12],
