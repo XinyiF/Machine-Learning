@@ -54,9 +54,12 @@ class FM(object):
         m, n = np.shape(self.data)
         result = []
         temp = 0
-        for i in range(n):
-            for j in range(i + 1, n):
-                temp += self.kernal(self.v[i], self.v[j]) * x[i] * x[j]
+        Vt = self.v.T
+        for k in range(self.k):
+            inner1 = self.kernal(Vt[k], x)
+            inner2 = self.kernal(Vt[k] ** 2, x ** 2)
+            temp += inner1 - inner2
+        temp/=2
         term1 = self._w_0
         term2 = self.kernal(x, self._w)
         # 该sample的预测值
@@ -93,9 +96,12 @@ class FM(object):
             for sampleId in range(m):
                 # 计算交叉项
                 temp=0
-                for i in range(n):
-                    for j in range(i+1,n):
-                        temp+=self.kernal(V[i],V[j])*self.data[sampleId][i]*self.data[sampleId][j]
+                Vt=V.T
+                for k in range(self.k):
+                    inner1=self.kernal(Vt[k],self.data[sampleId])
+                    inner2=self.kernal(Vt[k]**2,self.data[sampleId]**2)
+                    temp+=inner1-inner2
+                temp/=2
                 term1=w0
                 term2=self.kernal(self.data[sampleId],wi)
                 # 该sample的预测值
@@ -110,8 +116,9 @@ class FM(object):
                     if self.data[sampleId][i]!=0:
                         wi[i]-=self.alpha*self.data[sampleId][i]*part_df_loss
                         for f in range(self.k):
-                            V[i][f]-=self.alpha*part_df_loss*self.data[sampleId][i]*sum(V[j][f]*self.data[sampleId][j]-
-                                                                                        V[i][f]*self.data[sampleId][i]*self.data[sampleId][i] for j in range(n))
+                            V[i][f] -= self.alpha * part_df_loss * self.data[sampleId][i] * sum(
+                                V[j][f] * self.data[sampleId][j] -
+                                V[i][f] * self.data[sampleId][i] * self.data[sampleId][i] for j in range(n))
 
             # print('第%s次训练的误差为：%f' % (it, loss))
         self._w = wi
