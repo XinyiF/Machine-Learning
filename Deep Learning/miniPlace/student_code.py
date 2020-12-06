@@ -77,9 +77,9 @@ class SE(nn.Module):
     def forward(self, x):
         b,c,_,_=x.size()
         y=self.avg_pool(x).view(b,c)
-        y=self.fc(y).view(b,c,1,1)   #转化成概率
+        y=self.fc(y).view(b,c,1,1)
         #vis.heatmap()
-        return x*y  #每个概率乘上相应的特征
+        return x*y
 
 class SimpleConvNet(nn.Module):
     def __init__(self):
@@ -101,14 +101,16 @@ class SimpleConvNet(nn.Module):
 
 
     def _make_layers(self):
-        cfg=[32, 'M', 64,'M',32]
+        cfg=[12,12,'M',64,'M',32,32]
         layers = []
         in_channels = 3
         for x in cfg:
             if x == 'M':
                 layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
+                # layers += [nn.Dropout()]
             else:
                 layers += [nn.Conv2d(in_channels, x, kernel_size=3, padding=1),
+                           SE(x, 2),
                            nn.BatchNorm2d(x),
                            nn.ReLU(inplace=True)]
                 in_channels = x
