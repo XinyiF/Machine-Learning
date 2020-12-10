@@ -25,9 +25,6 @@ class SimpleFCNet(nn.Module):
         # create the model by adding the layers
         layers = []
 
-        ###################################
-        #     fill in the code here       #
-        ###################################
         # Add a Flatten layer to convert the 2D pixel array to a 1D vector
         layers.append(nn.Flatten())
         # Add a fully connected / linear layer with 128 nodes
@@ -172,16 +169,12 @@ def train_model(model, train_loader, optimizer, criterion, epoch):
     for input, target in tqdm(train_loader, total=len(train_loader)):
         output=model(input)
         loss = criterion(output,target)
-        # 1) zero the parameter gradients
+        # zero the parameter gradients
         optimizer.zero_grad()
-        # 2) forward + backward + optimize
+        # forward + backward + optimize
         loss.backward()
         optimizer.step()
 
-
-        # Update the train_loss variable
-        # .item() detaches the node from the computational graph
-        # Uncomment the below line after you fill block 1 and 2
         train_loss += loss.item()
 
     train_loss /= len(train_loader)
